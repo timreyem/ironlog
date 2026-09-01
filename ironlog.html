@@ -21,8 +21,8 @@ input[type=number]::-webkit-inner-spin-button{display:none}
 #scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 .page{display:none;padding-bottom:calc(var(--nav)+16px)}.page.on{display:block}
 nav{height:var(--nav);background:rgba(15,15,18,.97);border-top:1px solid var(--bg3);display:flex;flex-shrink:0;z-index:100}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--tx3);font-size:10px;font-weight:500}
-.ni i{font-size:22px}.ni.on{color:var(--acc)}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--tx3);font-size:11px;font-weight:500}
+.ni i{font-size:26px}.ni.on{color:var(--acc)}
 
 .mt-r{display:flex;align-items:center;gap:7px}
 .mt-lbl{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;width:40px}
@@ -410,11 +410,8 @@ table.st td{padding:5px 7px;vertical-align:middle;text-align:center}
 <nav>
   <div class="ni on" onclick="goto('dash')" id="ni-dash"><i class="ti ti-home"></i><span>Home</span></div>
   <div class="ni" onclick="goto('workout')" id="ni-workout"><i class="ti ti-barbell"></i><span>Training</span></div>
-  <div class="ni" onclick="goto('progress')" id="ni-progress"><i class="ti ti-chart-line"></i><span>Fortschritt</span></div>
-  <div class="ni" onclick="goto('nutrition')" id="ni-nutrition"><i class="ti ti-salad"></i><span>Ernährung</span></div>
-  <div class="ni" onclick="goto('supplements')" id="ni-supplements"><i class="ti ti-pill"></i><span>Supps</span></div>
   <div class="ni" onclick="goto('plan')" id="ni-plan"><i class="ti ti-calendar"></i><span>Plan</span></div>
-  <div class="ni" onclick="goto('settings')" id="ni-settings"><i class="ti ti-settings"></i><span>Mehr</span></div>
+  <div class="ni" onclick="show_more_menu()" id="ni-more"><i class="ti ti-grid-dots"></i><span>Mehr</span></div>
 </nav>
 </div>
 <div class="mbd" id="food-modal"><div class="ms"><div class="md"></div><div class="mt-title">Lebensmittel</div><div class="sb" style="margin:0 0 9px"><i class="ti ti-search" style="color:var(--tx3)"></i><input id="fs" placeholder="Suchen..." oninput="ffd()"/></div><div id="fdb" style="max-height:180px;overflow-y:auto;border-radius:9px;border:1px solid var(--bg4);margin-bottom:14px"></div><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;margin-bottom:9px;border-top:1px solid var(--bg4);padding-top:12px">Eigener Eintrag</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px"><div style="display:flex;flex-direction:column;gap:5px"><div style="font-size:10px;color:var(--tx2);text-transform:uppercase">Name</div><input class="inp" id="cf-n" placeholder="z.B. Hähnchen" style="padding:9px 11px;font-size:12px"/></div><div style="display:flex;flex-direction:column;gap:5px"><div style="font-size:10px;color:var(--tx2);text-transform:uppercase">kcal</div><input class="inp" id="cf-k" type="number" style="padding:9px 11px;font-size:12px"/></div><div style="display:flex;flex-direction:column;gap:5px"><div style="font-size:10px;color:var(--tx2);text-transform:uppercase">Protein g</div><input class="inp" id="cf-p" type="number" style="padding:9px 11px;font-size:12px"/></div><div style="display:flex;flex-direction:column;gap:5px"><div style="font-size:10px;color:var(--tx2);text-transform:uppercase">Kohlenhydrate g</div><input class="inp" id="cf-c" type="number" style="padding:9px 11px;font-size:12px"/></div><div style="display:flex;flex-direction:column;gap:5px"><div style="font-size:10px;color:var(--tx2);text-transform:uppercase">Fett g</div><input class="inp" id="cf-f" type="number" style="padding:9px 11px;font-size:12px"/></div></div><button class="btn" onclick="add_custom_food()">Hinzufügen</button><button class="btn-o" style="margin-top:7px" onclick="cm('food-modal')">Schließen</button></div></div>
@@ -580,7 +577,9 @@ function goto(p){
   document.querySelectorAll('.page').forEach(function(x){x.classList.remove('on');});
   var pg=document.getElementById('p-'+p);if(pg)pg.classList.add('on');
   document.querySelectorAll('.ni').forEach(function(x){x.classList.remove('on');});
-  var ni=document.getElementById('ni-'+p);if(ni)ni.classList.add('on');
+  var ni=document.getElementById('ni-'+p);
+  if(ni) ni.classList.add('on');
+  else { var nm=document.getElementById('ni-more'); if(nm) nm.classList.add('on'); }
   var sc=document.getElementById('scroll');if(sc)sc.scrollTop=0;
   if(p==='dash')render_dash();
   if(p==='body'){render_body();render_measures();}
@@ -1079,6 +1078,21 @@ function schedule_supp_reminder() {
   }, ms);
 }
 
+
+function show_more_menu() {
+  var ni = document.getElementById('ni-more');
+  if(ni) ni.classList.add('on');
+  var m = document.getElementById('more-modal');
+  if(m) m.classList.add('show');
+}
+function more_goto(p) {
+  cm('more-modal');
+  // remove on from ni-more since we're going elsewhere
+  var ni = document.getElementById('ni-more');
+  if(ni) ni.classList.remove('on');
+  goto(p);
+}
+
 </script>
 <!-- SUMMARY MODAL -->
 <div class="mbd" id="summary-modal">
@@ -1089,6 +1103,41 @@ function schedule_supp_reminder() {
   <div style="display:flex;gap:8px;margin-top:12px">
     <button class="btn" onclick="download_summary()">⬇ Als Bild speichern</button>
     <button class="btn-o" style="width:auto;padding:11px 18px" onclick="cm('summary-modal')">✕</button>
+  </div>
+</div>
+</div>
+
+
+<!-- MEHR MENU -->
+<div class="mbd" id="more-modal">
+<div class="ms" style="padding-bottom:calc(var(--nav)+10px)">
+  <div class="md"></div>
+  <div class="mt-title" style="margin-bottom:16px">Menü</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+    <div onclick="more_goto('progress')" style="background:var(--bg3);border:1px solid var(--bg4);border-radius:var(--r);padding:16px 8px;text-align:center;cursor:pointer">
+      <i class="ti ti-chart-line" style="font-size:26px;color:var(--acc3)"></i>
+      <div style="font-size:11px;margin-top:6px;font-weight:500">Fortschritt</div>
+    </div>
+    <div onclick="more_goto('nutrition')" style="background:var(--bg3);border:1px solid var(--bg4);border-radius:var(--r);padding:16px 8px;text-align:center;cursor:pointer">
+      <i class="ti ti-salad" style="font-size:26px;color:var(--acc)"></i>
+      <div style="font-size:11px;margin-top:6px;font-weight:500">Ernährung</div>
+    </div>
+    <div onclick="more_goto('supplements')" style="background:var(--bg3);border:1px solid var(--bg4);border-radius:var(--r);padding:16px 8px;text-align:center;cursor:pointer">
+      <i class="ti ti-pill" style="font-size:26px;color:var(--acc2)"></i>
+      <div style="font-size:11px;margin-top:6px;font-weight:500">Supps</div>
+    </div>
+    <div onclick="more_goto('body')" style="background:var(--bg3);border:1px solid var(--bg4);border-radius:var(--r);padding:16px 8px;text-align:center;cursor:pointer">
+      <i class="ti ti-scale" style="font-size:26px;color:var(--acc4)"></i>
+      <div style="font-size:11px;margin-top:6px;font-weight:500">Körper</div>
+    </div>
+    <div onclick="more_goto('exercises')" style="background:var(--bg3);border:1px solid var(--bg4);border-radius:var(--r);padding:16px 8px;text-align:center;cursor:pointer">
+      <i class="ti ti-list-search" style="font-size:26px;color:var(--acc3)"></i>
+      <div style="font-size:11px;margin-top:6px;font-weight:500">Übungen</div>
+    </div>
+    <div onclick="more_goto('settings')" style="background:var(--bg3);border:1px solid var(--bg4);border-radius:var(--r);padding:16px 8px;text-align:center;cursor:pointer">
+      <i class="ti ti-settings" style="font-size:26px;color:var(--tx2)"></i>
+      <div style="font-size:11px;margin-top:6px;font-weight:500">Einstellungen</div>
+    </div>
   </div>
 </div>
 </div>
